@@ -7,6 +7,8 @@ using StardewValley.Delegates;
 using System.Reflection.Emit;
 using StardewValley.Objects.Trinkets;
 using StardewValley.Objects;
+using StardewValley.Buildings;
+using StardewValley.TerrainFeatures;
 
 namespace StrongerTools {
     public class ModEntry : Mod {
@@ -34,6 +36,10 @@ namespace StrongerTools {
                 original: AccessTools.Method(typeof(Item), nameof(Item.canBeShipped)),
                 postfix: new HarmonyMethod(typeof(ModEntry), nameof(CanBeShipped_Postfix))
             );
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Grass), nameof(Grass.doCollisionAction)),
+                postfix: new HarmonyMethod(typeof(ModEntry), nameof(GrassDoCollisionAction_Postfix))
+            );
 
             harmony.Patch(
                 original: AccessTools.Method(typeof(Game1), "drawHUD"),
@@ -59,6 +65,13 @@ namespace StrongerTools {
                 case MeleeWeapon:
                     __result = true;
                     break;
+            }
+        }
+
+        static void GrassDoCollisionAction_Postfix() {
+            Farmer player = Game1.player;
+            if (player.stats.Get("Book_Grass") != 0) {
+                player.temporarySpeedBuff = 0;
             }
         }
 
