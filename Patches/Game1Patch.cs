@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using StardewValley;
 using System.Reflection.Emit;
 
 namespace StrongerTools.Patches;

@@ -12,9 +12,7 @@ namespace StrongerTools;
 
 public class ModEntry : Mod {
 
-#nullable disable
-    public static IMonitor SMonitor;
-#nullable enable
+    public static IMonitor SMonitor = null!;
 
     bool hardwareCursor = false;
 
@@ -28,7 +26,12 @@ public class ModEntry : Mod {
         helper.Events.GameLoop.ReturnedToTitle += OnReturnedToTitle;
 
         var harmony = new Harmony(ModManifest.UniqueID);
-
+        //prefixes
+        harmony.Patch(
+            original: AccessTools.Method(typeof(Farm), nameof(Farm.addCrows)),
+            prefix: new HarmonyMethod(typeof(FarmPatch), nameof(FarmPatch.AddCrows_Prefix))
+        );
+        //postfixes
         harmony.Patch(
             original: AccessTools.Method(typeof(Item), nameof(Item.canBeShipped)),
             postfix: new HarmonyMethod(typeof(ItemPatch), nameof(ItemPatch.CanBeShipped_Postfix))
@@ -37,7 +40,7 @@ public class ModEntry : Mod {
             original: AccessTools.Method(typeof(Grass), nameof(Grass.doCollisionAction)),
             postfix: new HarmonyMethod(typeof(GrassPatch), nameof(GrassPatch.DoCollisionAction_Postfix))
         );
-
+        //transpilers
         harmony.Patch(
             original: AccessTools.Method(typeof(Game1), "drawHUD"),
             transpiler: new HarmonyMethod(typeof(Game1Patch), nameof(Game1Patch.DrawHUD_Transpiler))

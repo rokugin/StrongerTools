@@ -30,7 +30,7 @@ public class Actions {
                     player.health += healthAmount;
                 }
             }
-            ModEntry.SMonitor.Log($"Player health changed, new value: {player.health}", LogLevel.Info);
+            ModEntry.SMonitor.Log($"\nPlayer health changed, new value: {player.health}\n", LogLevel.Info);
             return true;
         }
         return false;
@@ -60,7 +60,7 @@ public class Actions {
                     player.stamina += staminaAmount;
                 }
             }
-            ModEntry.SMonitor.Log($"Player stamina changed, new value: {player.stamina}", LogLevel.Info);
+            ModEntry.SMonitor.Log($"\nPlayer stamina changed, new value: {player.stamina}\n", LogLevel.Info);
             return true;
         }
         return false;

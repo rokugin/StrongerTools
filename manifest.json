@@ -2,9 +2,9 @@
   "name": "Stronger Tools",
   "author": "rokugin",
   "version": "1.0.0",
-  "description": "Increases the power of pickaxe and axe.",
+  "description": "Personal kitchen sink mod for all things unreleased.",
   "uniqueID": "rokugin.strongertools",
   "entryDLL": "StrongerTools.dll",
   "minimumapiversion": "4.0.0",
-  "updatekeys": [  ]
+  "updatekeys": ["Nexus:0"]
 }
