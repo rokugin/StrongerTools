@@ -8,16 +8,6 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<Optimize>True</Optimize>
-		<DebugType>portable</DebugType>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<Optimize>False</Optimize>
-		<DebugType>portable</DebugType>
-	</PropertyGroup>
-
 	<ItemGroup>
 		<None Remove=".gitattributes" />
 		<None Remove=".gitignore" />
@@ -25,7 +15,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.2.0" />
+		<PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.3.0" />
 	</ItemGroup>
+
+	<ProjectExtensions>
+		<VisualStudio>
+			<UserProperties manifest_1json__JsonSchema="" />
+		</VisualStudio>
+	</ProjectExtensions>
 
 </Project>

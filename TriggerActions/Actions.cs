@@ -1,10 +1,27 @@
 ﻿using StardewValley.Delegates;
 using StardewValley;
 using StardewModdingAPI;
+using Microsoft.Xna.Framework;
+using StardewValley.Triggers;
 
 namespace StrongerTools.TriggerActions;
 
 public class Actions {
+
+    public static void RegisterTriggerActions() {
+        TriggerActionManager.RegisterAction("rokugin.PlayerHealth", ChangePlayerHealth);
+        TriggerActionManager.RegisterAction("rokugin.PlayerStamina", ChangePlayerStamina);
+        TriggerActionManager.RegisterAction("rokugin.FixHealth", RevalidatePlayerHealth);
+        TriggerActionManager.RegisterAction("rokugin.PassOut", ChangePassingOut);
+    }
+
+    private static bool ChangePassingOut(string[] args, TriggerActionContext context, out string error) {
+        if (ArgUtility.TryGetBool(args, 1, out bool value, out error)) {
+            ModEntry.PassOut = value;
+            return true;
+        }
+        return false;
+    }
 
     public static bool ChangePlayerHealth(string[] args, TriggerActionContext context, out string error) {
         if (ArgUtility.TryGet(args, 1, out string amount, out error, allowBlank: false)) {
@@ -64,6 +81,36 @@ public class Actions {
             return true;
         }
         return false;
+    }
+
+    public static bool RevalidatePlayerHealth(string[] args, TriggerActionContext context, out string error) {
+        if (ArgUtility.TryGet(args, 0, out string value, out error, allowBlank: true)) {
+            RevalidateHealth(Game1.player);
+        }
+        return false;
+    }
+
+    public static void RevalidateHealth(Farmer farmer) {
+        int expected_max_health = 100;
+        if (farmer.mailReceived.Contains("qiCave")) {
+            expected_max_health += 25;
+        }
+        for (int i = 1; i <= farmer.GetUnmodifiedSkillLevel(4); i++) {
+            if (!farmer.newLevels.Contains(new Point(4, i)) && i != 5 && i != 10) {
+                expected_max_health += 5;
+            }
+        }
+        if (farmer.professions.Contains(24)) {
+            expected_max_health += 15;
+        }
+        if (farmer.professions.Contains(27)) {
+            expected_max_health += 25;
+        }
+        if (farmer.maxHealth != expected_max_health) {
+            ModEntry.SMonitor.Log("Max health not expected value, adjusting.", LogLevel.Warn);
+            farmer.maxHealth = expected_max_health;
+            farmer.health = farmer.maxHealth;
+        }
     }
 
 }

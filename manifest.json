@@ -1,10 +1,11 @@
 {
-  "name": "Stronger Tools",
-  "author": "rokugin",
-  "version": "1.0.0",
-  "description": "Personal kitchen sink mod for all things unreleased.",
-  "uniqueID": "rokugin.strongertools",
-  "entryDLL": "StrongerTools.dll",
-  "minimumapiversion": "4.0.0",
-  "updatekeys": ["Nexus:0"]
+  "$schema": "https://smapi.io/schemas/manifest.json",
+  "Name": "Stronger Tools",
+  "Author": "rokugin",
+  "Version": "1.0.0",
+  "Description": "Personal kitchen sink mod for all things unreleased.",
+  "UniqueID": "rokugin.strongertools",
+  "EntryDll": "StrongerTools.dll",
+  "MinimumApiVersion": "4.0.0",
+  "UpdateKeys": [ "Nexus:0" ]
 }

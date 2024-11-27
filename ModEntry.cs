@@ -2,7 +2,6 @@
 using StardewValley.Tools;
 using StardewValley;
 using HarmonyLib;
-using StardewValley.Triggers;
 using StardewModdingAPI.Events;
 using StardewValley.TerrainFeatures;
 using StrongerTools.Patches;
@@ -13,8 +12,8 @@ namespace StrongerTools;
 public class ModEntry : Mod {
 
     public static IMonitor SMonitor = null!;
-
     bool hardwareCursor = false;
+    public static bool PassOut = false;
 
     public override void Entry(IModHelper helper) {
         SMonitor = Monitor;
@@ -24,13 +23,11 @@ public class ModEntry : Mod {
         helper.Events.GameLoop.DayStarted += OnDayStarted;
         helper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
         helper.Events.GameLoop.ReturnedToTitle += OnReturnedToTitle;
+        helper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
+        helper.Events.GameLoop.TimeChanged += OnTimeChanged;
 
         var harmony = new Harmony(ModManifest.UniqueID);
-        //prefixes
-        harmony.Patch(
-            original: AccessTools.Method(typeof(Farm), nameof(Farm.addCrows)),
-            prefix: new HarmonyMethod(typeof(FarmPatch), nameof(FarmPatch.AddCrows_Prefix))
-        );
+
         //postfixes
         harmony.Patch(
             original: AccessTools.Method(typeof(Item), nameof(Item.canBeShipped)),
@@ -47,9 +44,18 @@ public class ModEntry : Mod {
         );
     }
 
+    private void OnTimeChanged(object? sender, TimeChangedEventArgs e) {
+        if (PassOut) return;
+        
+        if (e.NewTime == 2550) {
+            Game1.timeOfDay = 2540;
+        }
+    }
+
     private void OnGameLaunched(object? sender, GameLaunchedEventArgs e) {
         EnableHardwareCursor();
-        RegisterTriggerActions();
+        Actions.RegisterTriggerActions();
+        Program.enableCheats = true;
     }
 
     private void OnReturnedToTitle(object? sender, ReturnedToTitleEventArgs e) {
@@ -57,8 +63,9 @@ public class ModEntry : Mod {
     }
 
     private void OnUpdateTicked(object? sender, UpdateTickedEventArgs e) {
-        if (hardwareCursor) return;
-        EnableHardwareCursor();
+        if (hardwareCursor == false) {
+            EnableHardwareCursor();
+        }
     }
 
     private void OnDayStarted(object? sender, DayStartedEventArgs e) {
@@ -71,15 +78,19 @@ public class ModEntry : Mod {
         if (e.Pressed.Any(button => button.IsUseToolButton())
             && Game1.player.CurrentTool is Item item) {
             if (item is Pickaxe pickaxe) {
-                switch (pickaxe.ItemId) {
-                    case "GoldPickaxe":
-                        if (pickaxe.additionalPower.Value < 3) pickaxe.additionalPower.Value = 3;
-                        break;
-                    case "IridiumPickaxe":
-                        if (pickaxe.additionalPower.Value < 10) pickaxe.additionalPower.Value = 10;
-                        break;
+                if (pickaxe.additionalPower.Value < Game1.player.miningLevel.Value) {
+                    pickaxe.additionalPower.Value = Game1.player.miningLevel.Value;
                 }
-                //Monitor.Log($"{pickaxe.Name} current additional power: +{pickaxe.additionalPower.Value}", LogLevel.Info);
+                pickaxe.description =
+                    ItemRegistry.GetDataOrErrorItem(pickaxe.QualifiedItemId).Description + $"\n\n+{pickaxe.additionalPower.Value} Power";
+            }
+            if (item is Axe axe) {
+                int desiredPower = Math.Max(0, (int)(Game1.player.foragingLevel.Value / 3));
+                if (axe.additionalPower.Value < desiredPower) {
+                    axe.additionalPower.Value = desiredPower;
+                }
+                axe.description =
+                        ItemRegistry.GetDataOrErrorItem(axe.QualifiedItemId).Description + $"\n\n+{axe.additionalPower.Value} Power";
             }
         }
     }
@@ -87,11 +98,6 @@ public class ModEntry : Mod {
     void EnableHardwareCursor() {
         Game1.options.hardwareCursor = true;
         hardwareCursor = true;
-    }
-
-    private void RegisterTriggerActions() {
-        TriggerActionManager.RegisterAction("rokugin.PlayerHealth", Actions.ChangePlayerHealth);
-        TriggerActionManager.RegisterAction("rokugin.PlayerStamina", Actions.ChangePlayerStamina);
     }
 
 }
